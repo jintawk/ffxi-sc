@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ]]
 
 _addon.name = 'sc'
-_addon.version = '1.12'
+_addon.version = '1.20'
 _addon.author = 'Jinvoco/Jintawk (Carbuncle)'
 _addon.command = 'sc'
 
@@ -39,6 +39,24 @@ require "data/skillchainData"
 require "List"
 
 BLUE = 207
+debug = false
+
+function log(msg)
+    windower.add_to_chat(BLUE, 'SC -> ' .. msg)
+end
+
+function log_d(msg)
+    if debug then
+        log("[dbg] " .. msg)
+    end
+end
+
+--[[
+    Event: Addon loaded
+]]
+windower.register_event('load', function()
+    log('Addon loaded')
+end)
 
 --[[
     Searches for weaponskills available to the player that
@@ -136,32 +154,23 @@ function GetClosers(name, scA, scB, scC)
 
     -- Did not find any closers to this WS with players available WS - return
     if found == false then 
+        log('No SC closers found...')
         return 
     end
-
-    -- Print info about the opening weaponskill
-    local printStr = name .. '  >>  ' .. wsScA
-
-    if wsScB ~= "" then
-        printStr = printStr .. ', ' .. wsScB
-    end
-
-    windower.add_to_chat(BLUE, printStr)
-
-
+    
     -- Print highest level skillchain available
-    local printStr = 'Lvl ' .. highestLvl .. ' closers >> '
+    local printStr = 'Lvl ' .. highestLvl .. ' Closers >>'
 
     -- Print weaponskills that can close to the highest level skillchain available
     for i = closers.first, closers.last do
-        printStr = printStr .. ' '.. closers.items[i]
+        printStr = printStr .. ' ['.. closers.items[i] ..']'
 
         if i < closers.last then
             printStr = printStr .. ','
         end
     end
 
-    windower.add_to_chat(BLUE, printStr)
+    log(printStr)
 end
 
 --[[
@@ -173,14 +182,20 @@ end
     action:   Action received
 ]]
 windower.register_event('action', function(act)
-    local action = Action(act) or nil
+    if type(act) ~= 'table' then return end
 
-    if action == nil then return end
+    log_d('action ' .. act.category)
 
-    local category = action:get_category_string() or ''
+    if act == nil then 
+        log_d('act is nil! ')
+        return 
+    end
 
     -- Continue only if action is a weaponskill
-    if category == 'weaponskill_begin' then        
+    -- 3 = WS
+    -- 11 = Monster WS (or Trusts)
+    if act.category == 3 or act.category == 11 then        
+        log_d('ws !')
         local currentMob = windower.ffxi.get_mob_by_target('t') or nil
         local currentMobID = 0
 
@@ -192,6 +207,8 @@ windower.register_event('action', function(act)
             currentMobID = currentMob.id
         end
 
+        log_d('current mob ok')
+
         -- If weaponskill came from the target, we can't chain - return    
         if act.actor_id == currentMobID then return end
         
@@ -199,20 +216,29 @@ windower.register_event('action', function(act)
         if act.targets[1].id ~= currentMobID then return end    
         
         -- Get ID of the weaponskill used
-        local wsID = act.targets[1].actions[1].param
+        --local wsID = act.targets[1].actions[1].param
 
-        if wsID < #res.weapon_skills then
+        --log_d('ws valid -> ' .. wsID)
+        log_d('ws param -> ' .. act.param)
+
+        if act.param < #res.weapon_skills then
+            log_d('ws valid IN IF -> ' .. act.param)
+
             -- Get the weaponskill from ID            
-            local ws = res.weapon_skills[wsID]
+            local ws = res.weapon_skills[act.param]            
 
             -- Return if something went wrong getting the weaponskill
             if ws == nil then 
+                log_d('ws -> NIL ')
                 return 
             end
 
             -- Safely record the name and skillchain properties of the weaponskill
             local wsName = ws.en or '?'
             local wsScA = ws.skillchain_a or ''
+
+            log_d('wsName -> ' .. wsName)
+            log_d('wsScA -> ' .. wsScA)
 
             -- If weaponskill has no skillchain properties - return
             if wsScA == '' then
@@ -222,8 +248,23 @@ windower.register_event('action', function(act)
             local wsScB = ws.skillchain_b or ''
             local wsScC = ws.skillchain_c or ''
 
+            -- Print info about the opening weaponskill
+            local printStr = wsName .. ' >> [' .. wsScA .. ']'
+
+            if wsScB ~= "" then
+                if wsScC == "" then
+                    printStr = printStr .. ', [' .. wsScB ..']'
+                else
+                    printStr = printStr .. ', [' .. wsScB .. '], [' .. wsScC .. ']'
+                end
+            end
+
+            log(printStr)
+
+            log_d('calling GetClosers')
+
             -- Go and find any weaponskills the player has that can close to create a skillchain
-            GetClosers(name, wsScA, wsScB, wsScC)
+            GetClosers(wsName, wsScA, wsScB, wsScC)
         end
-    end
+    end    
 end)
