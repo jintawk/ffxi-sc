@@ -195,6 +195,25 @@ windower.register_event('action', function(act)
     -- 3 = WS
     -- 11 = Monster WS (or Trusts)
     if act.category == 3 or act.category == 11 then        
+
+        -- Magic burst detection
+        if act.targets[1].actions[1] ~= nil then            
+            local magicBurstId = act.targets[1].actions[1].add_effect_message
+
+            log_d("magicBurstId " .. magicBurstId)
+
+            if magicBurstId ~= nil then
+                log_d("magicBurstId NOT NIL")
+
+                local magicBursts = GetMagicBursts()
+
+                if magicBursts[magicBurstId] ~= nil then
+                    -- Magic burst successfully detected - report to player
+                    log("" .. magicBursts[magicBurstId].name .. " Magic Burst! >> Burst now with: " .. magicBursts[magicBurstId].report)
+                end
+            end
+        end
+
         log_d('ws !')
         local currentMob = windower.ffxi.get_mob_by_target('t') or nil
         local currentMobID = 0
@@ -267,4 +286,10 @@ windower.register_event('action', function(act)
             GetClosers(wsName, wsScA, wsScB, wsScC)
         end
     end    
+end)
+
+windower.register_event('action message',function (actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
+    if message_id == 196 then
+        log_d("JESUS, SC!!!")
+    end
 end)
