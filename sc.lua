@@ -36,10 +36,15 @@ require('tables')
 require('sets')
 res = require('resources')
 require "data/skillchainData"
+require "Chain"
 require "List"
+require "gui"
 
 BLUE = 207
 debug = false
+chainSc = nil
+chainMb = nil
+
 
 function log(msg)
     windower.add_to_chat(BLUE, 'SC -> ' .. msg)
@@ -171,6 +176,8 @@ function GetClosers(name, scA, scB, scC)
     end
 
     log(printStr)
+
+    chainSc = Chain.new({ printStr, os.time() + 6 })
 end
 
 --[[
@@ -210,6 +217,8 @@ windower.register_event('action', function(act)
                 if magicBursts[magicBurstId] ~= nil then
                     -- Magic burst successfully detected - report to player
                     log("" .. magicBursts[magicBurstId].name .. " Magic Burst! >> Burst now with: " .. magicBursts[magicBurstId].report)
+
+                    chainMb = Chain.new({ magicBursts[magicBurstId].report, os.time() + 8 })                    
                 end
             end
         end
@@ -288,8 +297,28 @@ windower.register_event('action', function(act)
     end    
 end)
 
-windower.register_event('action message',function (actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
-    if message_id == 196 then
-        log_d("JESUS, SC!!!")
+windower.register_event('load', function()
+	UpdateGUI(chains)
+end)
+
+windower.register_event('prerender',function ()
+    if chainSc == nil and chainMb == nil then return end
+
+    if chainSc ~= nil then
+        local timeRemainingSc = chainSc.expiry - os.time()
+
+        if timeRemainingSc < 0 then
+            chainSc = nil
+        end
     end
+
+    if chainMb ~= nil then
+        local timeRemainingMb = chainMb.expiry - os.time()
+
+        if timeRemainingMb < 0 then
+            chainMb = nil
+        end
+    end
+
+    UpdateGUI(chainSc, chainMb)
 end)

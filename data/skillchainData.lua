@@ -74,20 +74,20 @@ end
 
 function GetMagicBursts()
     local magicBurstData = {
-        [288] = {id=288,name="Light",report="Fire, Light, Lightning, and Wind"},
-        [289] = {id=289,name="Darkness",report="Water, Ice, Earth, and Dark"},
-        [290] = {id=290,name="Gravitation",report="Earth and Dark"},
-        [291] = {id=291,name="Fragmentation",report="Lightning and Wind"},
-        [292] = {id=292,name="Distortion",report="Water and Ice"},
-        [293] = {id=293,name="Fusion",report="Fire and Light"},
-        [294] = {id=294,name="Compression",report="Dark"},
-        [295] = {id=295,name="Liquefaction",report="Fire"},
-        [296] = {id=296,name="Induration",report="Ice"},
-        [297] = {id=297,name="Reverberation",report="Water"},
-        [298] = {id=298,name="Transfixion",report="Light"},
-        [299] = {id=299,name="Scission",report="Earth"},
-        [300] = {id=300,name="Detonation",report="Wind"},
-        [301] = {id=301,name="Impaction",report="Lightning"}
+        [288] = {id=288,name="Light",report=">> [Fire], [Light], [Lightning], [Wind]"},
+        [289] = {id=289,name="Darkness",report=">> [Water], [Ice], [Earth], [Dark]"},
+        [290] = {id=290,name="Gravitation",report=">> [Earth], [Dark]"},
+        [291] = {id=291,name="Fragmentation",report=">> [Lightning], [Wind]"},
+        [292] = {id=292,name="Distortion",report=">> [Water], [Ice]"},
+        [293] = {id=293,name="Fusion",report=">> [Fire], [Light]"},
+        [294] = {id=294,name="Compression",report=">> [Dark]"},
+        [295] = {id=295,name="Liquefaction",report=">> [Fire]"},
+        [296] = {id=296,name="Induration",report=">> [Ice]"},
+        [297] = {id=297,name="Reverberation",report=">> [Water]"},
+        [298] = {id=298,name="Transfixion",report=">> [Light]"},
+        [299] = {id=299,name="Scission",report=">> [Earth]"},
+        [300] = {id=300,name="Detonation",report=">> [Wind]"},
+        [301] = {id=301,name="Impaction",report=">> [Lightning]"}
     }
 
     return magicBurstData
