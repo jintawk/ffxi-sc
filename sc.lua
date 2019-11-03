@@ -45,6 +45,8 @@ debug = false
 chainSc = nil
 chainMb = nil
 
+-- set auto mode here
+auto_mode = false
 
 function log(msg)
     windower.add_to_chat(BLUE, 'SC -> ' .. msg)
@@ -218,7 +220,12 @@ windower.register_event('action', function(act)
                     -- Magic burst successfully detected - report to player
                     log("" .. magicBursts[magicBurstId].name .. " Magic Burst! >> Burst now with: " .. magicBursts[magicBurstId].report)
 
-                    chainMb = Chain.new({ magicBursts[magicBurstId].report, os.time() + 8 })                    
+                    chainMb = Chain.new({ magicBursts[magicBurstId].report, os.time() + 8 })    
+                    
+                    if auto_mode and magicBursts[magicBurstId].auto ~= nil then
+                        log("Autocasting magic burst!")
+                        windower.send_command("input /ma \"".. magicBursts[magicBurstId].auto .. "\" <t>")
+                    end
                 end
             end
         end
